@@ -16,7 +16,7 @@ then
 	tee /srv/pillar/top.sls > /dev/null << EOM
 	base:
 	
-	EOM
+EOM
 else
 	echo '/srv/pillar/top.sls exists, not modifying'
 fi
