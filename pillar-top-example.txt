@@ -1,0 +1,11 @@
+base:
+
+  'minion1,minion2':
+    - match: list
+    - <pillarname1>
+    - <pillarname2>
+
+  'minion2':
+    - match: list
+    - <pillarname3>
+

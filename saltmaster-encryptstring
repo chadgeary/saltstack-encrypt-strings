@@ -1,0 +1,26 @@
+#!/bin/sh
+# encrypts and formats a string from stdin for salt pillar.
+
+# root check
+if [ $(id -u) -ne 0 ];
+then
+	echo "must be run as root (sudo), exiting."
+	exit
+fi
+
+# encrypt a string with the saltmaster gpg key
+echo 'string name?'
+read PILLARSTRING
+
+echo 'type / paste string then press <RETURN>'
+{ stty -echo; head -n 1; stty echo; } | sudo /usr/bin/gpg --homedir /etc/salt/gpgkeys --armor --batch --trust-model always --encrypt -r 'saltmaster@saltmaster' | tee /srv/pillar/$PILLARSTRING.sls
+
+# format sls file for jinja/yaml/gpg
+sudo sed -i -e 's/^/  /' /srv/pillar/$PILLARSTRING.sls
+sudo sed -i -e '1i encryptedstring: |' /srv/pillar/$PILLARSTRING.sls
+sudo sed -i -e '1s/^/\n/' /srv/pillar/$PILLARSTRING.sls
+sudo sed -i -e '1i #!jinja|yaml|gpg' /srv/pillar/$PILLARSTRING.sls
+
+echo "$0: pillar $PILLARSTRING created @ /srv/pillar/$PILLARSTRING.sls
+$0: assign to minion(s) in /srv/pillar/top.sls
+$0: for examples, see pillar-top-example.txt"

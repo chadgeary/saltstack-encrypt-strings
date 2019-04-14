@@ -1,0 +1,47 @@
+#!/bin/sh
+# creates the base directory / file structure and gpg keys
+
+# root check
+if [ $(id -u) -ne 0 ];
+then
+	echo "must be run as root (sudo), exiting."
+	exit
+fi
+
+# pillar base template
+mkdir -p /srv/pillar
+
+if [ ! -f /srv/pillar/top.sls ];
+then
+	tee /srv/pillar/top.sls > /dev/null << EOM
+	base:
+	
+	EOM
+else
+	echo '/srv/pillar/top.sls exists, not modifying'
+fi
+
+if [ ! -d /etc/salt/gpgkeys ];
+then
+
+	# gpg dir
+	mkdir -p /etc/salt/gpgkeys
+	chmod -R 0700 /etc/salt/gpgkeys
+
+	# key generation
+	echo '%echo Generating key
+	Key-Type: default 
+	Subkey-Type: default 
+	Expire-Date: 0
+	Name-Real: saltmaster
+	Name-Email: saltmaster@saltmaster
+	%commit' | gpg --homedir /etc/salt/gpgkeys --gen-key --batch --no-tty --yes
+
+	# dir and files must be owned by salt-master process (not always root)
+	SALTPID=$(systemctl show salt-master -p MainPID | awk -F '=' '{print $2}')
+	SALTPIDUSER=$(ps -o user -q $SALTPID | awk 'NR==2 {print}')
+	chown -R $SALTPIDUSER /etc/salt/gpgkeys
+
+else
+	echo '/etc/salt/gpgkeys/ exists, not modifying'
+fi
