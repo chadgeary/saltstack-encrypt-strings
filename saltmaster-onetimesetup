@@ -1,5 +1,6 @@
 #!/bin/sh
 # creates the base directory / file structure and gpg keys
+export GPG_TTY=$(tty)
 
 # root check
 if [ $(id -u) -ne 0 ];
@@ -30,12 +31,13 @@ then
 
 	# key generation
 	echo '%echo Generating key
-	Key-Type: default 
-	Subkey-Type: default 
-	Expire-Date: 0
-	Name-Real: saltmaster
-	Name-Email: saltmaster@saltmaster
-	%commit' | gpg --homedir /etc/salt/gpgkeys --gen-key --batch --no-tty --yes
+%no-ask-passphrase
+Key-Type: default 
+Subkey-Type: default 
+Expire-Date: 0
+Name-Real: saltmaster
+Name-Email: saltmaster@saltmaster
+%commit' | gpg --homedir /etc/salt/gpgkeys --gen-key --batch --no-tty --yes
 
 	# dir and files must be owned by salt-master process (not always root)
 	SALTPID=$(systemctl show salt-master -p MainPID | awk -F '=' '{print $2}')
