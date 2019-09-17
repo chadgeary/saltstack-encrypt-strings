@@ -30,8 +30,9 @@ then
 	chmod -R 0700 /etc/salt/gpgkeys
 
 	# key generation
+	echo 'Generating a key will take a significant amount of time, please wait...'
 	echo '%echo Generating key
-%no-ask-passphrase
+%no-protection
 Key-Type: default 
 Subkey-Type: default 
 Expire-Date: 0
