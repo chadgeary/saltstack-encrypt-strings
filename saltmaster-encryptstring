@@ -17,7 +17,7 @@ echo 'type / paste string then press <RETURN>'
 
 # format sls file for jinja/yaml/gpg
 sudo sed -i -e 's/^/  /' /srv/pillar/$PILLARSTRING.sls
-sudo sed -i -e '1i encryptedstring: |' /srv/pillar/$PILLARSTRING.sls
+sudo sed -i -e "1i $PILLARSTRING: |" /srv/pillar/$PILLARSTRING.sls
 sudo sed -i -e '1s/^/\n/' /srv/pillar/$PILLARSTRING.sls
 sudo sed -i -e '1i #!jinja|yaml|gpg' /srv/pillar/$PILLARSTRING.sls
 
